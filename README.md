@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="data/logo/logo.png" alt="Euphonia" width="520">
+</p>
+
 # Euphonia
 
 Windows 本機聲音角色與截圖朗讀工具。使用 Qwen/Qwen3-TTS-12Hz-0.6B-Base 進行 zero-shot voice cloning，RapidOCR 辨識圖片中的中英文。
@@ -18,7 +22,7 @@ Streaming 的每個獨立片段會在裁切後進行響度一致化：只量測�
 
 預設 OCR 間隔 300 ms、文字穩定 700 ms，可在設定調整。重新開啟軟體後監控保持 OFF。
 
-Rhiannon Voice 另有本機情緒路由：英文使用 INT8 ONNX DistilRoBERTa 分為 anger、disgust、fear、joy、neutral、sadness、surprise；中日韓文字改用 INT8 XLM-EMO 分為 anger、fear、joy、sadness。`metadata.json` 中 3～30 秒的逐字稿對齊音檔會先離線建立情緒分數索引；實際 OCR 後先篩選相同 class，再以完整情緒分數向量的距離選擇最接近的參考音檔，最後生成語音。分類模型在 CPU 執行，候選 TTS 角色特徵在預載階段建立。執行 `scripts/setup_emotion.py` 安裝分類器，`scripts/build_rhiannon_emotions.py` 重建逐音檔 mapping。
+情緒模板支援本機情緒路由：英文使用 INT8 ONNX DistilRoBERTa 分為 anger、disgust、fear、joy、neutral、sadness、surprise；中日韓文字改用 INT8 XLM-EMO 分為 anger、fear、joy、sadness。實際 OCR 後會先篩選相同 class，再以完整情緒分數向量的距離選擇最接近的參考音檔。分類模型在 CPU 執行，候選 TTS 角色特徵在預載階段建立；可執行 `scripts/setup_emotion.py` 安裝分類器。
 
 ## 切換語音模型
 
@@ -35,11 +39,11 @@ Rhiannon Voice 另有本機情緒路由：英文使用 INT8 ONNX DistilRoBERTa �
 - 預設勾選「快速 OCR」：限制圖片最大邊長 960，使用 4 個運算執行緒，減少等待。若細小文字辨識不完整，可取消勾選切回原設定。兩者仍在本機辨識。
 - 推論診斷：`data/logs/`。加速版與 Streaming 共用 `.venv-faster`；F5 與 ZipVoice 分別使用 `.venv-f5` 和 `.venv-zipvoice`，不要混裝套件。
 
-執行 `.venv/Scripts/python.exe scripts/compare_models.py faster`（或 `qwen_streaming`、`f5`、`zipvoice`）會用已建立的 Rhiannon 角色測試短、中、長英文，保存 `data/comparison-*.json` 和 WAV。再執行 `scripts/build_comparison_page.py` 可產生 `data/model-comparison.html` 離線試聽頁。時間以整段完成計算，不是第一段聲音的延遲。介面實際生成與播放測試：`.venv/Scripts/python.exe scripts/test_models_ui.py faster qwen_streaming f5 zipvoice`。
+執行 `.venv/Scripts/python.exe scripts/compare_models.py faster`（或 `qwen_streaming`、`f5`、`zipvoice`）可使用已建立的角色測試短、中、長英文，保存 `data/comparison-*.json` 和 WAV。再執行 `scripts/build_comparison_page.py` 可產生 `data/model-comparison.html` 離線試聽頁。時間以整段完成計算，不是第一段聲音的延遲。介面實際生成與播放測試：`.venv/Scripts/python.exe scripts/test_models_ui.py faster qwen_streaming f5 zipvoice`。
 
 ## 啟動
 
-雙擊 `start.bat`。首次安裝請先執行 `setup.bat`（需要 Python 3.12 與 uv）。安裝程式使用 `.venv`，缺少 GPU PyTorch 時安裝 CUDA 12.8 版，適用相容的 NVIDIA 顯示卡；沒有 CUDA 時會使用較慢的 CPU。目前這台電腦的 `.venv` 沿用既有 `gpu_env` 的 CUDA 12.4 PyTorch，其他新增依賴裝在 `.venv` 中，因此不可移除原本的 `gpu_env`。
+雙擊 `start.bat`。首次安裝請先執行 `setup.bat`（需要 Python 3.12 與 uv）。安裝程式使用專案內的 `.venv`；相容的 NVIDIA 顯示卡可使用 CUDA 加速，沒有 CUDA 時則使用較慢的 CPU。
 
 1. 按「建立角色」，輸入名稱、選擇 3～30 秒的 WAV／FLAC／MP3／OGG，填寫與語音一致的逐字稿，儲存。建立後可按「編輯所選角色」修改名稱、主要採樣、逐字稿及情緒模板；Voice ID 保持不變，編輯前資料存入該角色的 `backups/`。
 2. 選擇角色及朗讀語言。
@@ -94,13 +98,3 @@ F12 透過獨立訊息執行緒上的 Windows 鍵盤 hook 偵測；單獨按 F12
 `test_background.py` 在 Windows 開啟另一個測試視窗，注入 F12 驗證原生鍵盤 hook、實際框選、背景工作銜接、靜音播放及原視窗焦點還原；OCR 與 TTS 使用替身，實際模型／OCR 另由 `test_sample.py` 驗證。測試結束會關閉測試視窗並釋放 hook，結果在 `data/background-test.json`。
 
 官方模型與 API：https://github.com/QwenLM/Qwen3-TTS#voice-clone
-
-## 本機驗證結果
-
-2026-09-06：在 RTX 4070 Ti SUPER 16GB、Python 3.12.7、PyTorch 2.5.1+cu124 上通過五項自動測試。原生 Windows 視窗啟動成功；實際 OCR 辨識「Euphonia文字辨識測試」；使用官方參考語音生成「你好，這是語音朗讀測試。」並輸出 2.96 秒的有效 WAV。模型與 tokenizer 已下載至 `data/model/`，兩份權重 SHA-256 均符合 Hugging Face metadata。測試確認流程與音訊輸出有效，角色相似度仍需使用自己的參考音檔試聽確認。
-
-## 使用提供的 Rhiannon 樣本
-
-目前「Rhiannon（英文採樣）」使用 11 段由 `metadata.json` 對齊逐字稿的複合參考音訊，共 29.375 秒，並保留原 Voice ID 供有聲小說映射沿用。可執行 `.venv\Scripts\python.exe scripts\rebuild_rhiannon_voice.py` 重新產生；每次覆寫前會將既有 `reference.wav` 與 `voice.json` 存入該 Voice 的 `backups/`。來源資料實際包含 35 段（編號 1–34、55）；因所有後端共用單一參考且應維持在 30 秒內，沒有直接串接全部音檔。
-
-英文新台詞、中文 OCR 校正後朗讀的 WAV、測試圖片及 `report.json` 存於 `data/sample-tests/rhiannon/`。報告記錄原始 OCR 結果、校正內容、音訊長度及生成時間。OCR 在這張測試圖片中漏辨識「麼」字，測試依已知原文校正後生成中文；使用時也請先檢查辨識文字。角色已儲存於 `data/voices/`，重新開啟工具即可選用。

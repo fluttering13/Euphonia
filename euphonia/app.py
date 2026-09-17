@@ -293,7 +293,7 @@ class Window(QMainWindow):
         self.setWindowTitle('Euphonia · 看見文字，聽見聲音')
         self.resize(1220, 820)
         self.setMinimumSize(980, 700)
-        logo_path = DATA / 'logo/logo.png'
+        logo_path = DATA / 'logo/logo2.png'
         if logo_path.is_file():
             self.setWindowIcon(QIcon(str(logo_path)))
         self.player = QMediaPlayer(self)
@@ -314,11 +314,11 @@ class Window(QMainWindow):
         header_layout.setSpacing(18)
         logo = QLabel()
         logo.setObjectName('brandLogo')
-        logo.setFixedSize(112, 112)
+        logo.setFixedSize(180, 102)
         logo.setAlignment(Qt.AlignCenter)
         if logo_path.is_file():
             logo.setPixmap(QPixmap(str(logo_path)).scaled(
-                108, 108, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                176, 96, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         header_layout.addWidget(logo)
         brand = QVBoxLayout()
         brand.setSpacing(2)
@@ -564,7 +564,7 @@ class Window(QMainWindow):
     def setup_tray(self):
         if QApplication.platformName() != 'windows' or not QSystemTrayIcon.isSystemTrayAvailable():
             return
-        logo_path = DATA / 'logo/logo.png'
+        logo_path = DATA / 'logo/logo2.png'
         icon = QIcon(str(logo_path)) if logo_path.is_file() else self.style().standardIcon(QStyle.SP_MediaVolume)
         self.setWindowIcon(icon)
         self.tray = QSystemTrayIcon(icon, self)
