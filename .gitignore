@@ -1,0 +1,54 @@
+# Python environments and caches
+.venv/
+.venv-*/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local IDE and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Local samples, third-party experiments, and checkpoints
+sample/
+experiments/
+checkpoints/
+
+# Runtime data; retain only the application logo required by the UI
+data/*
+!data/logo/
+data/logo/*
+!data/logo/logo.png
+
+# Generated media, downloaded models, and package artifacts
+*.wav
+*.mp3
+*.flac
+*.onnx
+*.safetensors
+*.pt
+*.pth
+*.bin
+*.gguf
+*.whl
+*.log
+
+# Publish README only; keep local research and benchmark notes private
+*.md
+!/README.md
