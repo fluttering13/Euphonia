@@ -103,18 +103,24 @@ class UiTests(unittest.TestCase):
             window.model_selector.setCurrentIndex(window.model_selector.findData(original))
             window.close()
     def test_model_is_preloaded_without_pressing_speak(self):
-        with patch('euphonia.app.Engine.prepare', return_value=True) as prepare:
-            window = Window()
-            try:
-                for _ in range(100):
-                    app.processEvents()
-                    time.sleep(0.01)
-                    if prepare.called and window.thread is None:
-                        break
-                self.assertTrue(prepare.called)
-                self.assertIn('保持載入', window.status.text())
-            finally:
-                window.close()
+        with tempfile.TemporaryDirectory() as tmp:
+            store = VoiceStore(Path(tmp) / 'voices')
+            source = Path(tmp) / 'voice.wav'
+            sf.write(source, np.ones(48000, dtype=np.float32) * .1, 16000)
+            store.save('CI voice', 'Reference transcript.', source)
+            with patch('euphonia.app.VoiceStore', return_value=store), \
+                    patch('euphonia.app.Engine.prepare', return_value=True) as prepare:
+                window = Window()
+                try:
+                    for _ in range(100):
+                        app.processEvents()
+                        time.sleep(0.01)
+                        if prepare.called and window.thread is None:
+                            break
+                    self.assertTrue(prepare.called)
+                    self.assertIn('保持載入', window.status.text())
+                finally:
+                    window.close()
 
     def test_capture_during_job_cancels_and_runs_after_completion(self):
         window = Window(auto_preload=False)

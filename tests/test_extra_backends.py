@@ -1,3 +1,4 @@
+import importlib.util
 import tempfile
 import unittest
 from pathlib import Path
@@ -9,6 +10,7 @@ from euphonia.extra_backends import F5Backend
 
 
 class ReferenceTests(unittest.TestCase):
+    @unittest.skipUnless(importlib.util.find_spec('torch'), 'optional PyTorch backend is not installed')
     def test_f5_preserves_long_reference_and_matching_transcript(self):
         # No model weights needed: this checks the >12s clipping regression.
         with tempfile.TemporaryDirectory() as temp:

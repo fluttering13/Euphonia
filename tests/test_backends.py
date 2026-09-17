@@ -70,7 +70,8 @@ class BackendTests(unittest.TestCase):
             return real_popen([sys.executable, '-u', '-c', code], **kwargs)
         client = BackendProcess('faster')
         try:
-            with patch('euphonia.backends.subprocess.Popen', side_effect=popen):
+            with patch('euphonia.backends.Path.is_file', return_value=True), \
+                    patch('euphonia.backends.subprocess.Popen', side_effect=popen):
                 progress = []
                 self.assertEqual(client.request({'text': 'hello'}, progress.append), 'hello')
                 pid = client.process.pid
@@ -90,7 +91,8 @@ class BackendTests(unittest.TestCase):
         stop = threading.Event()
         timer = threading.Timer(0.2, stop.set)
         try:
-            with patch('euphonia.backends.subprocess.Popen', side_effect=popen):
+            with patch('euphonia.backends.Path.is_file', return_value=True), \
+                    patch('euphonia.backends.subprocess.Popen', side_effect=popen):
                 timer.start()
                 self.assertIsNone(client.request({'text': 'old'}, lambda _: None, stop.is_set))
                 pid = client.process.pid

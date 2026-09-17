@@ -41,7 +41,7 @@ class EmotionTests(unittest.TestCase):
             routed = engine.emotional_voice(voice, 'Wonderful!')
             self.assertEqual(routed['emotion'], 'joy')
             self.assertEqual(routed['transcript'], 'Happy words.')
-            self.assertEqual(store.reference_path(routed), emotion_dir / 'reference.wav')
+            self.assertTrue(store.reference_path(routed).samefile(emotion_dir / 'reference.wav'))
 
     def test_nearest_score_vector_wins_within_same_class(self):
         with tempfile.TemporaryDirectory() as tmp:
